@@ -1,92 +1,71 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
+from geopy.geocoders import Nominatim  # Importing Nominatim geocoder class
 from queue import PriorityQueue
 import requests
-import networkx
 import folium
 import polyline
+import networkx #To implement the find_shortest_path function, 
+#use the networkx library to represent the graph and the networkx built-in shortest path algorithms 
+#to calculate the shortest path. Here's an example implementation:
+import random
+import string
+import os
 
 app = Flask(__name__)
 
-# use this to create a weighted graph
-graph = networkx.Graph()
+# making an instance of Nominatim class
+geolocator = Nominatim(user_agent="shortest_path_app")
 
-# use OpenStreetMap API endpoint for geocoding
+# Define the OpenStreetMap API endpoint for geocoding
 GEOCODE_API_URL = "https://nominatim.openstreetmap.org/search"
 
-# below function for managing the web pages’ route, home function returns to the index.html. if make GET request, index.html is rendered.
 @app.route('/', methods=['GET', 'POST'])
 def home():
-        #if make POST request,the POST block start to work, obtain data from the label start and end in the index.html form. Values are assigned to start_point and end-point.
     if request.method == 'POST':
         start_point = request.form['start']
         end_point = request.form['end']
 
-        # use geocoding geocode function to convert start_point and end-point addresses to coordinates.
+        # use geocoding geocode function to convert addresses to coordinates
         start_coordinates = geocode(start_point)
         end_coordinates = geocode(end_point)
 
         if not start_coordinates or not end_coordinates:
-            return render_template('index.html', error="Unable to find coordinates for the addresses.")
+            return render_template('index.html', error="Unable to find coordinates for the given addresses.")
 
-        # if geocoding address successful, perform the path finding algorithm with find_shortest_path function, the key operation for this program
+        # Perform the path finding algorithm with find_shortest_path function, the key operation for this program
         shortest_path = find_shortest_path(start_coordinates, end_coordinates)
 
-        # if no path found, display error message
         if shortest_path is None:
-            return render_template('index.html', error="Error: Unable to find a path.")
+            return render_template('index.html', error="Unable to find a path.")
 
-        # if path found, visualize the path on the map and save it as an HTML file to templates folder.
-        plot_shortest_path(start_coordinates, end_coordinates, shortest_path)
+        # Plot the shortest path on the map and save it as an HTML file
+        file_path = plot_shortest_path(start_coordinates, end_coordinates, shortest_path)
 
-        # Pass the shortest path and coordinates to the html file in the templates folder for visualization
-        return render_template('shortest_path.html', shortest_path=shortest_path, start_coordinates=start_coordinates, end_coordinates=end_coordinates)
+        # Pass the shortest path and coordinates to the template for visualization, 
+        return redirect(url_for('show_shortest_path', file_path=file_path))
 
     return render_template('index.html')
 
 
-#Below function use address as parameter to obtain longitude and latitude data
+# applying geocode method to get the location
 def geocode(address):
-    params = {
-        "q": address,
-        "format": "json"
-}
-    #send GET request to the API
-    response = requests.get(GEOCODE_API_URL, params=params)
-    #if request successful,json method store the data as “data” variable. 
-    if response.status_code == 200:
-        data = response.json()
-        if len(data) > 0:
-            return (float(data[0]['lon']), float(data[0]['lat']))
+    location = geolocator.geocode(address)
+    if location is not None:
+        return location.latitude, location.longitude
     return None
 
 
-#Below is the key function for this program, using IDA* search to find path
+# Implement path finding algorithm, use the start_coordinates and end_coordinates to calculate the shortest path
+# Return the shortest path as a list of coordinates
 def find_shortest_path(start_coordinates, end_coordinates):
+    # Create a weighted graph
+    graph = networkx.Graph()
 
-    # Convert start and end coordinates to nodes, add ndoes to the graph
-    start_point = geocode(start_coordinates)
-    end_point = geocode(end_coordinates)
-    if not start_point or not end_point:
-        return None
-
-    graph.add_node(start_coordinates, pos=start_point)
-    graph.add_node(end_coordinates, pos=end_point)
-
-    # Define the heuristic function (estimated distance from a node to the end node)
-    def heuristic(node):
-        start_pos = graph.nodes[start_coordinates]['pos']
-        node_pos = graph.nodes[node]['pos']
-        return distance(start_pos, node_pos)
-
-    # Define the cost function (weight of an edge between two nodes)
-    def cost(node1, node2):
-        node1_pos = graph.nodes[node1]['pos']
-        node2_pos = graph.nodes[node2]['pos']
-        return distance(node1_pos, node2_pos)
-
-    # Define the actions function (generate neighboring nodes from a given node)
-    def actions(node):
-        return list(graph.neighbors(node))
+    # Add the start and end nodes with their coordinates to the graph
+    graph.add_node('start', pos=start_coordinates)
+    graph.add_node('node1', pos=(0, 0))  # Add 'node1' with placeholder coordinates
+    graph.add_node('node2', pos=(0, 0))  # Add 'node2' with placeholder coordinates
+    graph.add_node('end', pos=end_coordinates)
 
     # Define the distance function (Euclidean distance between two points)
     def distance(point1, point2):
@@ -94,71 +73,39 @@ def find_shortest_path(start_coordinates, end_coordinates):
         x2, y2 = point2
         return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
 
-    # Define the IDA* search function
-    def ida_star_search():
-        start_node = (start_coordinates, 0, heuristic(start_coordinates), None)  # (node, g_score, f_score, parent)
-        threshold = start_node[2]  # Initial threshold is the heuristic value of the start node
+    # Calculate the distance between two nodes based on their coordinates
+    def calculate_distance(node1, node2):
+        return distance(graph.nodes[node1]['pos'], graph.nodes[node2]['pos'])
 
-        while True:
-            result, threshold = search(start_node, 0, threshold)
-            if result is not None:
-                return result
+    # Add edges to the graph connecting neighboring nodes
+    graph.add_edge('start', 'node1', weight=calculate_distance('start', 'node1'))
+    graph.add_edge('node1', 'node2', weight=calculate_distance('node1', 'node2'))
+    graph.add_edge('node2', 'end', weight=calculate_distance('node2', 'end'))
 
+    # Use the built-in shortest path algorithm in networkx to find the shortest path: 
+    # the networkx.shortest_path function from the NetworkX library, 
+    # which internally uses Dijkstra's algorithm to calculate the shortest path 
+    # between the "start" and "end" nodes in the given graph.
+    shortest_path = networkx.shortest_path(graph, 'start', 'end', weight='weight')
 
-    # Define the recursive search function used in IDA*
-    def search(node, g_score, threshold):
-        node, _, f_score, _ = node
-        f_score = g_score + heuristic(node)
+    # Retrieve the coordinates of the nodes in the shortest path
+    path_coordinates = [graph.nodes[node]['pos'] for node in shortest_path]
 
-        if f_score > threshold:
-            return None, f_score
-
-        if node == end_coordinates:
-            return reconstruct_path(node), threshold
-
-        min_cost = float('inf')
-        neighbors = actions(node)
-
-        for neighbor in neighbors:
-            cost_to_neighbor = cost(node, neighbor)
-            neighbor_node = (neighbor, g_score + cost_to_neighbor, 0, node)  # (node, g_score, f_score, parent)
-            result, new_threshold = search(neighbor_node, g_score + cost_to_neighbor, threshold)
-
-            if result is not None:
-                return result, threshold
-
-            min_cost = min(min_cost, new_threshold)
-
-        return None, min_cost
-
-
-    # Reconstruct the path from the goal node to the start node
-    def reconstruct_path(node):
-        path = []
-
-        while node is not None:
-            path.append(node)
-            node = graph.nodes[node].get('parent')
-
-        return list(reversed(path))
-
-
-    # Run the IDA* search
-    shortest_path = ida_star_search()
-
-    return shortest_path
-
+    return path_coordinates
 
 
 def plot_shortest_path(start_coordinates, end_coordinates, shortest_path):
-    # Define the OSRM (Open Source Routing Machine) API endpoint
-    url = "fhttp://router.project-osrm.org/route/v1/driving/{start_coordinates[1]},{start_coordinates[0]};{end_coordinates[1]},{end_coordinates[0]}"
+    # Define the OSRM API endpoint
+    url = f"http://router.project-osrm.org/route/v1/driving/{start_coordinates[1]},{start_coordinates[0]};{end_coordinates[1]},{end_coordinates[0]}"
 
     # Send a request to the OSRM API
     response = requests.get(url).json()
 
-    # Retrieve coordinates from the response
-    encoded_polyline = response['routes'][0]['geometry']['coordinates']
+    # Retrieve the encoded polyline from the response
+    encoded_polyline = response['routes'][0]['geometry']
+
+    # Decode the polyline to obtain the coordinates
+    coordinates = polyline.decode(encoded_polyline)
 
     # Create a map object using Folium
     m = folium.Map(location=start_coordinates, zoom_start=13)
@@ -170,12 +117,27 @@ def plot_shortest_path(start_coordinates, end_coordinates, shortest_path):
     # Plot the polyline for the shortest path
     folium.PolyLine(coordinates, color="blue", weight=2.5, opacity=1).add_to(m)
 
-    # Save the map as an HTML file to the templates folder
-    file_path = r"C:\Users\xiong\lab1\Shortest_path\templates\shortest_path.html"
+    # Generate a random cache-busting parameter, ensure the URL is unique for each version of the HTML file
+    cache_bust = ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))
+
+    # Construct the file name with the cache-busting parameter
+    file_name = f"shortest_path_{cache_bust}.html"
+    file_path = os.path.join(r"C:\Users\xiong\lab1\Shortest_path\templates", file_name)
+
+    file_url = file_path + '?_cache_bust=' + cache_bust
+
+    # Save the map as an HTML file
     m.save(file_path)
 
     return file_path
 
+# if user submits the form, will be redirected to below route.
+@app.route('/shortest_path')
+def show_shortest_path():
+    file_path = request.args.get('file_path')
+    cache_bust = file_path.split('_')[-1].split('.')[0]
+    template_name = f'shortest_path_{cache_bust}.html'
+    return render_template(template_name, file_path=file_path)
 
 if __name__ == '__main__':
-    app.run() #starts the flask running.
+    app.run()
