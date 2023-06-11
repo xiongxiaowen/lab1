@@ -1,18 +1,25 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.6.33712.159
+# Visual Studio 15
+VisualStudioVersion = 15.0.33529.398
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Shortest_path", "Shortest_path.pyproj", "{4A0322F3-DBB4-4E96-AFEE-1B81BEB149D8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{049B29F1-A30A-4F59-9112-ADDEEA672B17}"
+	ProjectSection(SolutionItems) = preProject
+		pylint.pylintrc = pylint.pylintrc
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Quality|Any CPU = Quality|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4A0322F3-DBB4-4E96-AFEE-1B81BEB149D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A0322F3-DBB4-4E96-AFEE-1B81BEB149D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A0322F3-DBB4-4E96-AFEE-1B81BEB149D8}.Debug|Any CPU.ActiveCfg = Code quality|Any CPU
+		{4A0322F3-DBB4-4E96-AFEE-1B81BEB149D8}.Quality|Any CPU.ActiveCfg = Code quality|Any CPU
+		{4A0322F3-DBB4-4E96-AFEE-1B81BEB149D8}.Release|Any CPU.ActiveCfg = Code quality|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

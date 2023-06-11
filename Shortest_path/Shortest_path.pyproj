@@ -12,6 +12,10 @@
     <OutputPath>.</OutputPath>
     <Name>Shortest_path</Name>
     <RootNamespace>Shortest path</RootNamespace>
+    <InterpreterId>Global|PythonCore|3.11</InterpreterId>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterPath>C:\Users\xiong\AppData\Local\Programs\Python\Python311\python.exe</InterpreterPath>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,8 +25,21 @@
     <DebugSymbols>true</DebugSymbols>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Code quality' ">
+    <OutputPath>bin\Code quality\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Quality' ">
+    <OutputPath>bin\Quality\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Shortest_path.py" />
+    <Compile Include="test_home.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.11" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="pylint.pylintrc" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
