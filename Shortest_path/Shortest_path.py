@@ -29,12 +29,14 @@ def home():
         start_coordinates = geocode(start_point)
         end_coordinates = geocode(end_point)
 
+        # scenario where geocoding fails
         if not start_coordinates or not end_coordinates:
             return render_template('index.html', error="Unable to find coordinates for the given addresses.")
 
         # Perform the path finding algorithm with find_shortest_path function, the key operation for this program
         shortest_path = find_shortest_path(start_coordinates, end_coordinates)
 
+        # scenario where shortest path cannot be found
         if shortest_path is None:
             return render_template('index.html', error="Unable to find a path.")
 

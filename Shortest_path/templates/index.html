@@ -14,5 +14,9 @@
 
         <input type="submit" value="Find Shortest Path">
     </form>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
 </body>
 </html>
