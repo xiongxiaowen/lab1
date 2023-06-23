@@ -61,8 +61,7 @@ def geocode(address):
 def dijkstra(graph, start_coordinates, end_coordinates):
     # Initialize the distance dictionary with infinity for all nodes, except the start node
     distances = {}
-
-    for node in graph: 
+    for node in graph.nodes:
         distances[node] = float("inf")
     distances[start_coordinates] = 0
     
@@ -80,7 +79,7 @@ def dijkstra(graph, start_coordinates, end_coordinates):
             break
 
         # Explore the neighbors of the current node
-        for neighbor in graph[current_node]:
+        for neighbor in graph.neighbors(current_node):
             # Calculate the distance from the start to the neighbor through the current node
             distance = current_distance + graph[current_node][neighbor]['weight']
             # If a shorter path is found, update the distance and visited node
@@ -136,7 +135,7 @@ def find_shortest_path(start_coordinates, end_coordinates):
     graph.add_edge('node2', 'end', weight=calculate_distance('node2', 'end'))
 
     # Use Dijkstra’s Algorithm to find the shortest path: 
-    shortest_path = dijkstra(graph, start_coordinates, end_coordinates)
+    shortest_path = dijkstra(graph, 'start', 'end')
 
     # Retrieve the coordinates of the nodes in the shortest path
     path_coordinates = [graph.nodes[node]['pos'] for node in shortest_path]
