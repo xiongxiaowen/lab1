@@ -1,5 +1,5 @@
 # This version: priority queue implemented on heap
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from geopy.geocoders import Nominatim
 import requests
 import folium
@@ -24,26 +24,33 @@ def home():
         start_point = request.form['start']
         end_point = request.form['end']
 
+        if not start_point or not end_point:
+            flash('Please provide both a start and end address.', 'error')
+            return redirect(url_for('home'))
+
         # use geocoding geocode function to convert addresses to coordinates
         start_coordinates = geocode(start_point)
         end_coordinates = geocode(end_point)
+
+
+        # Perform the path finding algorithm with find_shortest_path function, the key operation for this program
+        shortest_path = find_shortest_path(start_coordinates, end_coordinates)
+
+        if start_coordinates and end_coordinates:
+            # Plot the shortest path on the map and save it as an HTML file
+            file_path = plot_shortest_path(start_coordinates, end_coordinates, shortest_path)
+            if file_path:
+                # Pass the shortest path and coordinates to the template for visualization
+                redirect_url = url_for('show_shortest_path', file_path=file_path)
+                return redirect(redirect_url)
 
         # scenario where geocoding fails
         if not start_coordinates or not end_coordinates:
             return render_template('index.html', error="Unable to find coordinates for the given addresses.")
 
-        # Perform the path finding algorithm with find_shortest_path function, the key operation for this program
-        shortest_path = find_shortest_path(start_coordinates, end_coordinates)
-
         # scenario where shortest path cannot be found
         if shortest_path is None:
             return render_template('index.html', error="Unable to find a path.")
-
-        # Plot the shortest path on the map and save it as an HTML file
-        file_path = plot_shortest_path(start_coordinates, end_coordinates, shortest_path)
-
-        # Pass the shortest path and coordinates to the template for visualization, 
-        return redirect(url_for('show_shortest_path', file_path=file_path))
 
     return render_template('index.html')
 
@@ -51,9 +58,11 @@ def home():
 # applying geocode method to get the location
 def geocode(address):
     location = geolocator.geocode(address)
-    if location is not None:
+    print(location)  # Print loocation variable
+    if location is not None and hasattr(location, 'latitude') and hasattr(location, 'longitude'):
         return location.latitude, location.longitude
-    return None
+    else:
+        return None
 
 
 # Implement Dijkstra’s Algorithm, use the start_coordinates and end_coordinates to calculate the shortest path
