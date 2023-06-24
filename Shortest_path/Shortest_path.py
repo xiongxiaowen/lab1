@@ -1,15 +1,14 @@
+# This version: priority queue implemented on heap
 from flask import Flask, render_template, request, redirect, url_for
-from geopy.geocoders import Nominatim  # Importing Nominatim geocoder class
-from queue import PriorityQueue
+from geopy.geocoders import Nominatim
 import requests
 import folium
 import polyline
-import networkx #To implement the find_shortest_path function, 
-#use the networkx library to represent the graph and the networkx built-in shortest path algorithms 
-#to calculate the shortest path. Here's an example implementation:
+import networkx
 import random
 import string
 import os
+from Dijkstra import dijkstra
 
 app = Flask(__name__)
 
@@ -57,56 +56,6 @@ def geocode(address):
     return None
 
 
-# Operates Dijkstra’s Algorithm 
-def dijkstra(graph, start_coordinates, end_coordinates):
-    # Initialize the distance dictionary with infinity for all nodes, except the start node
-    distances = {}
-    for node in graph.nodes:
-        distances[node] = float("inf")
-    distances[start_coordinates] = 0
-    
-    # for visited nodes
-    visited = {}
-
-    # Create a priority queue to store nodes
-    queue = PriorityQueue()  
-    queue.put((0, start_coordinates))
-    while not queue.empty():
-        # Get the node with the smallest tentative distance from the priority queue
-        current_distance, current_node = queue.get()
-        # break when end node is reached
-        if current_node == end_coordinates:
-            break
-
-        # Explore the neighbors of the current node
-        for neighbor in graph.neighbors(current_node):
-            # Calculate the distance from the start to the neighbor through the current node
-            distance = current_distance + graph[current_node][neighbor]['weight']
-            # If a shorter path is found, update the distance and visited node
-            if distance < distances[neighbor]:
-                distances[neighbor] = distance
-                visited[neighbor] = current_node
-
-                # Add the neighbor code to the priority queue with the updated distance
-                queue.put((distance, neighbor))
-
-    # If no path from the start node to the end node, return None
-    if end_coordinates not in visited:
-        return None
-
-    # Reconstruct the shortest path list from the visited nodes
-    shortest_path = []
-    current_node = end_coordinates
-    while current_node != start_coordinates:
-        shortest_path.append(current_node)
-        current_node = visited[current_node]
-    shortest_path.append(start_coordinates)
-
-    shortest_path.reverse()
-
-    return shortest_path
-
-
 # Implement Dijkstra’s Algorithm, use the start_coordinates and end_coordinates to calculate the shortest path
 # Return the shortest path as a list of coordinates
 def find_shortest_path(start_coordinates, end_coordinates):
@@ -136,6 +85,9 @@ def find_shortest_path(start_coordinates, end_coordinates):
 
     # Use Dijkstra’s Algorithm to find the shortest path: 
     shortest_path = dijkstra(graph, 'start', 'end')
+
+    if not shortest_path:
+        return "No path found"
 
     # Retrieve the coordinates of the nodes in the shortest path
     path_coordinates = [graph.nodes[node]['pos'] for node in shortest_path]
