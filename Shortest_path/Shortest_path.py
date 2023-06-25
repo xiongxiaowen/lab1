@@ -10,6 +10,7 @@ import string
 import os
 from Dijkstra import dijkstra
 import secrets
+from IDA_star import ida_star
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -95,8 +96,16 @@ def find_shortest_path(start_coordinates, end_coordinates):
     graph.add_edge('node1', 'node2', weight=calculate_distance('node1', 'node2'))
     graph.add_edge('node2', 'end', weight=calculate_distance('node2', 'end'))
 
-    # Use Dijkstra’s Algorithm to find the shortest path: 
-    shortest_path = dijkstra(graph, 'start', 'end')
+    # Use Algorithm:
+    if start_coordinates not in graph.nodes or end_coordinates not in graph.nodes:
+        # Handle the case when the coordinates are not present in the graph
+        flash('Invalid start or end coordinates. Please provide valid coordinates.', 'error')
+        return redirect(url_for('home'))
+    else:
+        # ida_star function (IDA* Algorithm): 
+        shortest_path = ida_star(graph, start_coordinates, end_coordinates)
+        # if Use Dijkstra’s Algorithm to find the shortest path: 
+        # shortest_path = dijkstra(graph, 'start', 'end')
 
     if not shortest_path:
         return "No path found"
