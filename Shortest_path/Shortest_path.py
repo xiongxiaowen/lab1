@@ -1,5 +1,5 @@
 # This version: priority queue implemented on heap
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 from geopy.geocoders import Nominatim
 import requests
 import folium
@@ -9,8 +9,10 @@ import random
 import string
 import os
 from Dijkstra import dijkstra
+import secrets
 
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)
 
 # making an instance of Nominatim class
 geolocator = Nominatim(user_agent="shortest_path_app")
@@ -31,7 +33,6 @@ def home():
         # use geocoding geocode function to convert addresses to coordinates
         start_coordinates = geocode(start_point)
         end_coordinates = geocode(end_point)
-
 
         # Perform the path finding algorithm with find_shortest_path function, the key operation for this program
         shortest_path = find_shortest_path(start_coordinates, end_coordinates)
@@ -57,12 +58,14 @@ def home():
 
 # applying geocode method to get the location
 def geocode(address):
-    location = geolocator.geocode(address)
-    print(location)  # Print loocation variable
-    if location is not None and hasattr(location, 'latitude') and hasattr(location, 'longitude'):
-        return location.latitude, location.longitude
-    else:
-        return None
+    try: 
+        location = geolocator.geocode(address)
+        print(location)  # Print loocation variable
+        if location is not None and hasattr(location, 'latitude') and hasattr(location, 'longitude'):
+            return location.latitude, location.longitude
+    except Exception as e:
+        print(f"Geocoding failed for address '{address}': {e}")
+    return None
 
 
 # Implement Dijkstra’s Algorithm, use the start_coordinates and end_coordinates to calculate the shortest path
@@ -111,8 +114,19 @@ def plot_shortest_path(start_coordinates, end_coordinates, shortest_path):
     # Send a request to the OSRM API
     response = requests.get(url).json()
 
+    # Check if the 'routes' key exists in the response
+    if 'routes' not in response or not response['routes']:
+        raise ValueError("Missing 'routes' key in API response")
+
+    # Get the encoded polyline from the first route
+    route = response['routes'][0]
+
+    # Check if the 'geometry' key exists in the route
+    if 'geometry' not in route:
+        raise ValueError("Missing 'geometry' key in route")
+
     # Retrieve the encoded polyline from the response
-    encoded_polyline = response['routes'][0]['geometry']
+    encoded_polyline = route['geometry']
 
     # Decode the polyline to obtain the coordinates
     coordinates = polyline.decode(encoded_polyline)
@@ -128,15 +142,15 @@ def plot_shortest_path(start_coordinates, end_coordinates, shortest_path):
     folium.PolyLine(coordinates, color="blue", weight=2.5, opacity=1).add_to(m)
 
     # Generate a random cache-busting parameter, ensure the URL is unique for each version of the HTML file
-    cache_bust = ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))
+    cache_bust = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
 
     # Construct the file name with the cache-busting parameter
     file_name = f"shortest_path_{cache_bust}.html"
-    file_path = os.path.join(r"C:\Users\xiong\lab1\Shortest_path\templates", file_name)
+    file_path = os.path.join("templates", file_name)
 
     file_url = file_path + '?_cache_bust=' + cache_bust
 
-    # Save the map as an HTML file
+    # Save the map as an HTML file to templates folder
     m.save(file_path)
 
     return file_path
@@ -144,10 +158,14 @@ def plot_shortest_path(start_coordinates, end_coordinates, shortest_path):
 # if user submits the form, will be redirected to below route.
 @app.route('/shortest_path')
 def show_shortest_path():
+    #retrieves the value of the file_path parameter from the query string
     file_path = request.args.get('file_path')
-    cache_bust = file_path.split('_')[-1].split('.')[0]
-    template_name = f'shortest_path_{cache_bust}.html'
-    return render_template(template_name, file_path=file_path)
+    return render_template('results.html', file_path=file_path)
+
+#send the map to the frame
+@app.route('/display_map/<file_path>')
+def display_map(file_path):
+    return send_file(file_path)
 
 if __name__ == '__main__':
     app.run()
