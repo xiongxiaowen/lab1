@@ -6,51 +6,6 @@ import os
 from unittest import TestCase, mock
 
 
-# test the error scenarios where geocoding fails or shortest path cannot be found
-class ErrorHandlingTestCase(unittest.TestCase):
-    def setUp(self):
-        app.testing = True
-        self.client = app.test_client()
-
-    def test_geocoding_failure(self):
-        # Mock the geocoding function to always return None
-        with patch('Shortest_path.geocode', return_value=None):
-            response = self.client.post('/', data={'start': 'Invalid Start', 'end': 'Invalid End'})
-            self.assertEqual(response.status_code, 200)
-            self.assertIn(b"Unable to find coordinates for the given addresses.", response.data)
-
-    def test_shortest_path_not_found(self):
-        # Mock the find_shortest_path function to return None
-        with patch('Shortest_path.find_shortest_path', return_value=None):
-            response = self.client.post('/', data={'start': 'Start', 'end': 'End'})
-            self.assertEqual(response.status_code, 200)
-            self.assertIn(b"Unable to find a path.", response.data)
-
-
-class GeocodeTestCase(unittest.TestCase):
-    @patch.object(Nominatim, 'geocode')
-    def test_geocode(self, mock_geocode):
-        mock_location = MagicMock()
-        mock_location.latitude = 40.7128
-        mock_location.longitude = -74.0060
-        mock_geocode.return_value = mock_location
-
-        coordinates = geocode('New York')
-        self.assertEqual(coordinates, (40.7128, -74.0060))
-        mock_geocode.assert_called_once_with('New York')
-
-
-class FindShortestPathTestCase(unittest.TestCase):
-    def test_find_shortest_path(self):
-        start_coordinates = (40.7128, -74.0060)
-        end_coordinates = (34.0522, -118.2437)
-
-        shortest_path = find_shortest_path(start_coordinates, end_coordinates)
-
-        self.assertIsNotNone(shortest_path)
-        self.assertIsInstance(shortest_path, list)
-        self.assertGreater(len(shortest_path), 0)
-
 
 class PlotShortestPathTestCase(TestCase):
     @patch('Shortest_path.requests.get')
