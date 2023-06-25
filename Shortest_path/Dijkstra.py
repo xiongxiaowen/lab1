@@ -136,14 +136,19 @@ def dijkstra(graph, start_coordinates, end_coordinates):
     if end_coordinates not in distances:
         return []
 
-    # Reconstruct the shortest path list from the visited nodes
+    # Call the reconstruct_shortest_path function
+    shortest_path = reconstruct_shortest_path(visited, start_coordinates, end_coordinates)
+    return shortest_path, visited
+
+
+# Reconstruct the shortest path list from the visited nodes
+def reconstruct_shortest_path(visited, start_coordinates, end_coordinates):
     shortest_path = []
     current_node = end_coordinates
     while current_node != start_coordinates:
         shortest_path.append(current_node)
         current_node = visited[current_node]
     shortest_path.append(start_coordinates)
-
     shortest_path.reverse()
-
     return shortest_path
+
