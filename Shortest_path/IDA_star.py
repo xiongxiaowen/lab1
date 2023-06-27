@@ -27,8 +27,12 @@ def ida_star(graph, start_coordinates, end_coordinates):
 
         min_cost = float("inf")
 
+      # neighbors sorted by the combined cost of the path from the start node and the heuristic estimate
+        neighbors = sorted(graph.neighbors(current_coordinates), key=lambda neighbor: g + graph[current_coordinates][neighbor]['weight'] + heuristic(neighbor, end_coordinates))
+
+
         # Explore the neighbors of the current node
-        for neighbor in graph.neighbors(current_coordinates):
+        for neighbor in neighbors:
             # Calculate the distance from the start to the neighbor through the current node
             distance = g + graph[current_coordinates][neighbor]['weight']
             if distance < distances[neighbor]:
