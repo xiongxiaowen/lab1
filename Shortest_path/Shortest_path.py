@@ -1,4 +1,4 @@
-# This version: priority queue implemented on heap
+# This version can work either with Dijkstra’s Algorithm or IDA* Algorithm.
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 from geopy.geocoders import Nominatim
 import requests
@@ -20,6 +20,9 @@ geolocator = Nominatim(user_agent="shortest_path_app")
 
 # Define the OpenStreetMap API endpoint for geocoding
 GEOCODE_API_URL = "https://nominatim.openstreetmap.org/search"
+
+# Create a weighted graph
+graph = networkx.Graph()
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -69,11 +72,10 @@ def geocode(address):
     return None
 
 
-# Implement Dijkstra’s Algorithm, use the start_coordinates and end_coordinates to calculate the shortest path
+# Implement Dijkstra’s Algorithm (priority queue implemented on heap) or IDA* Algorithm, 
+# use the start_coordinates and end_coordinates to calculate the shortest path
 # Return the shortest path as a list of coordinates
 def find_shortest_path(start_coordinates, end_coordinates):
-    # Create a weighted graph
-    graph = networkx.Graph()
 
     # Add the start and end nodes with their coordinates to the graph
     graph.add_node('start', pos=start_coordinates)
@@ -102,10 +104,10 @@ def find_shortest_path(start_coordinates, end_coordinates):
         flash('Invalid start or end coordinates. Please provide valid coordinates.', 'error')
         return redirect(url_for('home'))
     else:
-        # ida_star function (IDA* Algorithm): 
+        # if use ida_star function (IDA* Algorithm) to find the shortest path, run below line: 
         shortest_path = ida_star(graph, start_coordinates, end_coordinates)
-        # if Use Dijkstra’s Algorithm to find the shortest path: 
-        # shortest_path = dijkstra(graph, 'start', 'end')
+        # if use Dijkstra’s Algorithm to find the shortest path, run below line: 
+        #shortest_path = dijkstra(graph, 'start', 'end')
 
     if not shortest_path:
         return "No path found"
