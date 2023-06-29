@@ -1,9 +1,14 @@
-# use this verion to compare the execution times of the IDA* algorithm and Dijkstra's algorithm, it tells the fastest algorithm.
+"""
+This module is not part of the program.
+Use this verion to compare the execution times of geocoding, IDA* algorithm and Dijkstra's algorithm.
+it tells the fastest algorithm.
+"""
+
 import time
 from geopy.geocoders import Nominatim
 import networkx
-from Dijkstra import dijkstra
-from IDA_star import ida_star
+from dijkstra import dijkstra
+from ida_star import ida_star
 
 
 # making an instance of Nominatim class
@@ -96,8 +101,8 @@ def geocode(address):
 
         if location is not None and hasattr(location, 'latitude') and hasattr(location, 'longitude'):
             return (location.latitude, location.longitude), execution_time
-    except Exception as e:
-        print(f"Geocoding failed for address '{address}': {e}")
+    except Exception as ex:
+        print(f"Geocoding failed for address '{address}': {ex}")
     return None, execution_time
 
           
