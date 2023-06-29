@@ -1,14 +1,22 @@
-#this file for implementing IDA*
+"""
+This module contains all fuctions to implment IDA*.
+"""
 
-# heuristic function (Euclidean distance between two points)
-# estimates the distance between a given node and the goal node
+
 def heuristic(start_coordinates, end_coordinates):
+    """
+    heuristic function (Euclidean distance between two points)
+    estimates the distance between a given node and the goal node
+    """
     x1, y1 = start_coordinates
     x2, y2 = end_coordinates
     return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
 
-# Define the IDA* search function
+
 def search(current_coordinates, g, bound, end_coordinates):
+    """
+    # Define the IDA* search function
+    """
     f = g + heuristic(current_coordinates, end_coordinates)
     if f > bound:
         return f
@@ -18,8 +26,15 @@ def search(current_coordinates, g, bound, end_coordinates):
 
     min_cost = float("inf")
 
-    # neighbors sorted by the combined cost of the path from the start node and the heuristic estimate
-    neighbors = sorted(graph.neighbors(current_coordinates), key=lambda neighbor: g + graph[current_coordinates][neighbor]['weight'] + heuristic(neighbor, end_coordinates))
+    # neighbors sorted by the combined cost of the path
+    # from the start node and the heuristic estimate
+    neighbors = sorted(
+        graph.neighbors(current_coordinates),
+        key=lambda neighbor: (
+            g + graph[current_coordinates][neighbor]['weight'] +
+            heuristic(neighbor, end_coordinates)
+        )
+    )
 
     # Explore the neighbors of the current node
     for neighbor in neighbors:
@@ -37,8 +52,11 @@ def search(current_coordinates, g, bound, end_coordinates):
 
     return min_cost
 
-#Define the ida_star function
+
 def ida_star(graph, start_coordinates, end_coordinates):
+    """
+    Define the ida_star function
+    """
     distances = {}
     for node in graph.nodes:
         distances[node] = float("inf")
@@ -62,8 +80,11 @@ def ida_star(graph, start_coordinates, end_coordinates):
     return shortest_path
 
 
-# Reconstruct the shortest path list from the visited nodes
+
 def reconstruct_shortest_path(visited, start_coordinates, end_coordinates):
+    """
+    Define the ida_star function
+    """
     shortest_path = []
     current_coordinates = end_coordinates
     while current_coordinates != start_coordinates:

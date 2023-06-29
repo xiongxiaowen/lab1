@@ -1,15 +1,24 @@
+"""
+This module contains all fuctions to implment Dijkstra.
+"""
 
-# use heap, in seprate class.
-class binaryheap: 
+class binaryheap:
+    """
+    use heap, in seprate class.
+    for each node (not root), the value of the parent node is <= the values of the children,
+    smallest key always at the front(min heap)
+    """
     def __init__(self):
-        # the list storing elements.
+        # create a list to store the elements of the heap
         self.heap=[]
-        # the dictionary storing nodes
+        # create a dictionary to store the nodes and their corresponding entries in the heap
         self.node_index={}
         self.current_index = 0
 
-    # push elements to heap
     def push(self, node, distance):
+        """
+        push new elements to heap
+        """
         #needs distance and node stored in the list
         entry =[distance, self.current_index, node]
         #add to the dictionary
@@ -17,10 +26,14 @@ class binaryheap:
         self.heap.append(entry)
         #increment index
         self.current_index += 1
+        #calls belwo method to maintain the heap property
+        #by moving the new added element to its correct position
         self._sift_up(len(self.heap) - 1)
-    
-    # pop element
+
     def pop (self):
+        """
+        removes and returns the element with the smallest distance from the heap
+        """
         if not self.heap:
             return None
 
@@ -28,17 +41,21 @@ class binaryheap:
         del self.node_index[node]
         if len(self.heap) > 1:
             self.heap[0] = self.heap.pop()
+            #calls below method to maintain the heap property
+            #by moving the new root element to the correct position.
             self._sift_down(0)
-        else: 
+        else:
             self.heap.pop()
 
         if self.heap:
             return self.heap[0][0], node
         else:
             return None, None
-        
-    # update
+
     def update(self, node, new_distance):
+        """
+        update the distance of a node in the heap.
+        """
         entry = self.node_index[node]
         entry[0] = new_distance
         index = entry[1]
@@ -47,15 +64,23 @@ class binaryheap:
         else:
             self._sift_down(index)
 
-    # Check if the heap is empty
     def is_empty(self):
+        """
+        Check if the heap is empty
+        """
         return len(self.heap) == 0
 
+    #restore the heap property by moving an element up the heap.
+    #use an index as input and compares the element at that index with the parent.
+    #If the element is smaller, swaps the element with the parent and updates the index.
     def _sift_up(self, index):
         while index > 0 and self.heap[index][0] < self.heap[self._parent(index)][0]:
             self._swap(index, self._parent(index))  # Swap the current entry with its parent
             index = self._parent(index)  # Move up to the parent index
 
+    #restore the heap property by moving an element down the heap.
+    #It takes an index as input and compares the element at that index with its children.
+    #If any child is smaller, it swaps the element with the smallest child and updates the index.
     def _sift_down(self, index):
         while True:
             smallest = index
@@ -73,33 +98,46 @@ class binaryheap:
                 self._swap(index, smallest)  # Swap the current entry with the smallest child
                 index = smallest  # Move down to the smallest child index
             else:
-                break  # If the current entry is smaller than both children, the heap property is maintained
+                # If the current entry´smaller than both children, the heap property is maintained
+                break
 
     def _parent(self, index):
-        return (index - 1) // 2  # Calculate the parent index of a given index
+        # Calculate the parent index of a given index, returns the parent index of a given index
+        return (index - 1) // 2
 
     def _left_child(self, index):
-        return 2 * index + 1  # Calculate the index of the left child of a given index
-    
+        # Calculate the index of the left child of a given index,
+        # returns the index of the left child of a given index
+        return 2 * index + 1
+
     def _right_child(self, index):
-        return 2 * index + 2  # Calculate the index of the right child of a given index
+        # Calculate the index of the right child of a given index,
+        # returns the index of the right child of a given index in the heap.
+        return 2 * index + 2
 
+    #swaps the entries in the heap list and updates the corresponding indices in the entries.
+    #to exchange elements during the process of maintaining the heap property.
     def _swap(self, i, j):
-        self.heap[i], self.heap[j] = self.heap[j], self.heap[i]  # Swap the entries in the heap list
-        self.heap[i][1], self.heap[j][1] = self.heap[j][1], self.heap[i][1]  # Swap the indices in the entries
-        self.node_index[self.heap[i][2]] = self.heap[i]  # Update the mapping for the swapped entries
-        self.node_index[self.heap[j][2]] = self.heap[j]  # Update the mapping for the swapped entries
+        # Swap the entries in the heap list
+        self.heap[i], self.heap[j] = self.heap[j], self.heap[i]
+        # Swap the indices in the entries
+        self.heap[i][1], self.heap[j][1] = self.heap[j][1], self.heap[i][1]
+        # Update the mapping for the swapped entries
+        self.node_index[self.heap[i][2]] = self.heap[i]
+        # Update the mapping for the swapped entries
+        self.node_index[self.heap[j][2]] = self.heap[j]
 
 
-
-# Operates Dijkstra’s Algorithm 
 def dijkstra(graph, start_coordinates, end_coordinates):
+    """
+    Operates Dijkstra’s Algorithm
+    """
     # Initialize the distance dictionary with infinity for all nodes, except the start node
     distances = {}
     for node in graph.nodes:
         distances[node] = float("inf")
     distances[start_coordinates] = 0
-    
+
     # for visited nodes
     visited = {}
 
@@ -141,8 +179,11 @@ def dijkstra(graph, start_coordinates, end_coordinates):
     return shortest_path, visited
 
 
-# Reconstruct the shortest path list from the visited nodes
+
 def reconstruct_shortest_path(visited, start_coordinates, end_coordinates):
+    """
+    Reconstruct the shortest path list from the visited nodes
+    """
     shortest_path = []
     current_node = end_coordinates
     while current_node != start_coordinates:
@@ -151,4 +192,3 @@ def reconstruct_shortest_path(visited, start_coordinates, end_coordinates):
     shortest_path.append(start_coordinates)
     shortest_path.reverse()
     return shortest_path
-
