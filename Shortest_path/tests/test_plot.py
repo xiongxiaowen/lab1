@@ -7,19 +7,19 @@ from unittest.mock import patch, MagicMock
 import requests
 import polyline
 import folium
-from Shortest_path import plot_shortest_path
+from shortest_path import plot_shortest_path
 
 
 #tests the behavior of the plot_shortest_path function 
 class PlotShortestPathMockTestCase(unittest.TestCase):
-    @patch('Shortest_path.requests.get')
-    @patch('Shortest_path.polyline.decode')
-    @patch('Shortest_path.folium.Map')
-    @patch('Shortest_path.folium.Marker')
-    @patch('Shortest_path.folium.PolyLine')
+    @patch('shortest_path.requests.get')
+    @patch('shortest_path.polyline.decode')
+    @patch('shortest_path.folium.Map')
+    @patch('shortest_path.folium.Marker')
+    @patch('shortest_path.folium.PolyLine')
     def test_plot_shortest_path(self, mock_polyline, mock_map, mock_marker, mock_decode, mock_get):
         # Patch the plot_shortest_path function
-        with patch('Shortest_path.plot_shortest_path') as mock_plot_shortest_path:
+        with patch('shortest_path.plot_shortest_path') as mock_plot_shortest_path:
             # Set the return value of plot_shortest_path to a mock file path
             mock_plot_shortest_path.return_value = '/path/to/file.html'
 
@@ -65,7 +65,7 @@ class PlotShortestPathMockTestCase(unittest.TestCase):
 class PlotShortestPathErrorTestCase(unittest.TestCase):
     def test_missing_routes_key(self):
         # Patch the requests.get function to return a response without 'routes' key
-        with patch('Shortest_path.requests.get') as mock_get:
+        with patch('shortest_path.requests.get') as mock_get:
             mock_get.return_value.json.return_value = {}
 
             start_coordinates = [40.7128, -74.0060]
@@ -78,7 +78,7 @@ class PlotShortestPathErrorTestCase(unittest.TestCase):
 
     def test_missing_geometry_key(self):
         # Patch the requests.get function to return a response without 'geometry' key
-        with patch('Shortest_path.requests.get') as mock_get:
+        with patch('shortest_path.requests.get') as mock_get:
             mock_get.return_value.json.return_value = {'routes': [{}]}
 
             start_coordinates = [40.7128, -74.0060]

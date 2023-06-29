@@ -1,7 +1,7 @@
 # test display_map function
 import unittest
 from flask import Flask, send_file
-from Shortest_path import app
+from shortest_path import app
 import random, string, os
 
 class TestDisplayMap(unittest.TestCase):

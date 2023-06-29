@@ -1,10 +1,10 @@
-#test the home function in the Shortest_path.py
+#test the home function in the shortest_path.py
 import unittest
 from unittest import TestCase, mock
 from unittest.mock import patch, MagicMock
 from geopy.geocoders import Nominatim
 from flask import Flask, url_for
-from Shortest_path import app, geocode, find_shortest_path, plot_shortest_path
+from shortest_path import app, geocode, find_shortest_path, plot_shortest_path
 
 class TestHome(unittest.TestCase):
     def setUp(self):
@@ -13,8 +13,8 @@ class TestHome(unittest.TestCase):
         self.app = app.test_client()
 
     @patch.object(Nominatim, 'geocode')
-    @patch('Shortest_path.find_shortest_path')
-    @patch('Shortest_path.plot_shortest_path')
+    @patch('shortest_path.find_shortest_path')
+    @patch('shortest_path.plot_shortest_path')
 
     def test_home_with_valid_addresses(self, mock_plot_shortest_path, mock_find_shortest_path, mock_geocode):
         # Simulate a POST request with valid addresses
@@ -34,7 +34,7 @@ class TestHome(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.location, '/')
 
-    @mock.patch('Shortest_path.geocode')
+    @mock.patch('shortest_path.geocode')
     def test_home_with_geocoding_failure(self, mock_geocode):
         # Define a side_effect function that returns None for invalid addresses
         def side_effect(address):

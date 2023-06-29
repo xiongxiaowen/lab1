@@ -1,5 +1,5 @@
 import unittest
-from Dijkstra import binaryheap
+from dijkstra import binaryheap
 
 class BinaryHeapTestCase(unittest.TestCase):
     def setUp(self):
@@ -18,7 +18,6 @@ class BinaryHeapTestCase(unittest.TestCase):
         self.assertIsNone(self.heap.pop())
         self.assertTrue(self.heap.is_empty())
 
-"""
     # test update
     def test_update(self):
         self.heap.push('A', 5)
@@ -50,7 +49,7 @@ class BinaryHeapTestCase(unittest.TestCase):
         self.heap.heap = [[1, 0, 'A'], [2, 1, 'B'], [3, 2, 'C'], [4, 3, 'D']]
         self.heap._sift_down(0)
         self.assertEqual(self.heap.heap, [[1, 0, 'A'], [2, 1, 'B'], [3, 2, 'C'], [4, 3, 'D']])
-"""
+
 
 if __name__ == '__main__':
     unittest.main()

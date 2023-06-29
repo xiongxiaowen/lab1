@@ -1,7 +1,7 @@
 import unittest
 from flask import Flask, request, render_template
 from unittest.mock import patch
-from Shortest_path import app, show_shortest_path
+from shortest_path import app, show_shortest_path
 
 class ShowShortestPathTestCase(unittest.TestCase):
     def setUp(self):

@@ -1,5 +1,5 @@
 import unittest
-from Dijkstra import dijkstra, reconstruct_shortest_path
+from dijkstra import dijkstra, reconstruct_shortest_path
 import networkx
 
 class DijkstraTestCase(unittest.TestCase):

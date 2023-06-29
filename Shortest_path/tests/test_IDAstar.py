@@ -1,5 +1,5 @@
 import unittest
-from IDA_star import heuristic, search, ida_star, reconstruct_shortest_path
+from ida_star import heuristic, search, ida_star, reconstruct_shortest_path
 import networkx
 
 class HeuristicTestCase(unittest.TestCase):

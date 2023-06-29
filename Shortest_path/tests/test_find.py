@@ -1,10 +1,10 @@
 ## test the find_shortest_path function
 import unittest
 from unittest.mock import patch 
-from Shortest_path import app, geocode, find_shortest_path
+from shortest_path import app, geocode, find_shortest_path
 
 class TestFindShortestPath(unittest.TestCase):
-    @patch('Shortest_path.geocode')
+    @patch('shortest_path.geocode')
     def test_find_shortest_path(self, mock_geocode):
         start_coordinates = (60.1711, 24.9415)  # Central Railway Station
         end_coordinates = (60.3174, 24.9633)  # Helsinki Airport
