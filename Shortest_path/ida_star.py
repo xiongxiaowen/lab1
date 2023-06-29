@@ -1,7 +1,10 @@
 """
 This module contains all fuctions to implment IDA*.
 """
+import networkx
 
+# Create a weighted graph
+graph = networkx.Graph()
 
 def heuristic(start_coordinates, end_coordinates):
     """
@@ -68,7 +71,7 @@ def ida_star(graph, start_coordinates, end_coordinates):
     # Perform the IDA* search
     bound = heuristic(start_coordinates, end_coordinates)
     while True:
-        cost = search(start_coordinates, 0, bound)
+        cost = search(start_coordinates, 0, bound, end_coordinates)
         if cost == "FOUND":
             break
         if cost == float("inf"):
