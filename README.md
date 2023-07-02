@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-﻿﻿# Shortest_path
-=======
 ﻿# Shortest_path
->>>>>>> df112aadd3cd7c3c3d9d2b498d3e61d794f009f2
 This is the repository for "Tietorakenteet ja algoritmit harjoitustyö alkukesä".
 
 
